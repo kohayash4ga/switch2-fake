@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>当選メールシミュレータ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ========================================== -->
+  <!-- １）申し込み画面 (Application Screen)      -->
+  <!-- ========================================== -->
+  <div id="application-screen" class="screen">
+    <header class="header">
+      <h1>応募フォーム</h1>
+    </header>
+    <div class="form-container">
+      <label for="input-name" class="label">お名前を入力してください：</label>
+      <input type="text" id="input-name" class="input-text" placeholder="例：山田 太郎" />
+      <button id="apply-button" class="btn">申し込む</button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ２）受信トレイ画面 (Inbox Screen)         -->
+  <!-- ========================================== -->
+  <div id="inbox-screen" class="screen hidden">
+    <header class="header">
+      <h1>メール</h1>
+    </header>
+    <ul class="email-list">
+      <li class="email-item" id="open-winning-mail">
+        <img class="sender-icon" src="nintendo_logo.png" alt="Nintendo アイコン" />
+        <div class="email-summary">
+          <p class="sender-name">Nintendo</p>
+          <p class="email-subject">【当選通知】Nintendo Switch 2 マリオカートセット</p>
+        </div>
+        <p class="received-date">5月23日</p>
+      </li>
+      <!-- ※必要に応じて他のメールを追加してもよい -->
+    </ul>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ３）メール本文画面 (Mail View Screen)     -->
+  <!-- ========================================== -->
+  <div id="mail-screen" class="screen hidden">
+    <header class="header">
+      <button id="back-button" class="back-button">←</button>
+      <h1>メール詳細</h1>
+    </header>
+    <div class="mail-content">
+      <!-- 差出人情報 -->
+      <div class="mail-header-info">
+        <img class="sender-icon-large" src="nintendo_logo.png" alt="Nintendo アイコン" />
+        <div class="header-text">
+          <p class="sender-name-large">Nintendo <span class="verified-badge">✔︎</span></p>
+          <p class="to-yourself">To: 自分</p>
+          <p class="sent-date">5月23日</p>
+        </div>
+      </div>
+
+      <!-- 本文 -->
+      <div class="mail-body">
+        <!-- ここに JavaScript から名前を差し込みます -->
+        <p id="recipient-name">○○○○ 様</p>
+        <p>
+          このたびはマイニンテンドーストアより「Nintendo Switch 2（日本語・国内専用）マリオカート ワールド セット」抽選販売にご応募いただきありがとうございました。
+        </p>
+        <p>
+          5月20日ご連絡のメールでご案内しましたとおり、厳正なる抽選の結果、<span id="recipient-name-duplicate">○○○○ 様</span>が当選いたしました。
+        </p>
+        <p>
+          下記の内容をご確認のうえ、ご購入のお手続きをよろしくお願いいたします。<br />
+          ※本メールと入れ違いで、すでにご購入済みの場合はご容赦ください。
+        </p>
+        <hr />
+        <p>
+          ■当選された商品<br />
+          Nintendo Switch 2（日本語・国内専用） マリオカート ワールド セット
+        </p>
+        <hr />
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
