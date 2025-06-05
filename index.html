@@ -1,92 +1,985 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>当選メールシミュレータ</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nintento Switch 2 抽選体験</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* 応募画面 */
+        .application-screen {
+            background: linear-gradient(135deg, #e60012 0%, #ff4757 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .input-name {
+            margin: 20px auto;
+            width: 260px;
+        }
+        .input-name input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            font-size: 14px;
+        }
+
+        .product-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 250px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .switch-console {
+            width: 180px;
+            height: 100px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .switch-screen {
+            width: 120px;
+            height: 70px;
+            background: #000;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .joy-con-left, .joy-con-right {
+            width: 25px;
+            height: 80px;
+            position: absolute;
+            top: 10px;
+            border-radius: 12px;
+        }
+
+        .joy-con-left {
+            background: linear-gradient(45deg, #0066cc, #4488ff);
+            left: -20px;
+        }
+
+        .joy-con-right {
+            background: linear-gradient(45deg, #ff6b35, #ff8c42);
+            right: -20px;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-subtitle {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffeb3b;
+        }
+
+        .apply-button {
+            background: white;
+            color: #e60012;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .apply-button:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .reapply-button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .reapply-button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        /* Gmail風メールボックス */
+        .gmail-screen {
+            background: white;
+        }
+
+        .gmail-header {
+            background: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .gmail-logo {
+            font-size: 20px;
+            color: #ea4335;
+            font-weight: bold;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            background: #f1f3f4;
+            font-size: 14px;
+        }
+
+        .gmail-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        .gmail-sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px 0;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sidebar-item:hover {
+            background: #f1f3f4;
+        }
+
+        .sidebar-item.active {
+            background: #fce8e6;
+            color: #d93025;
+            font-weight: 500;
+        }
+
+        .gmail-content {
+            flex: 1;
+            background: white;
+        }
+
+        .email-list {
+            padding: 0;
+        }
+
+        .email-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .email-item:hover {
+            background: #f8f9fa;
+        }
+
+        .email-item.unread {
+            background: white;
+            font-weight: 500;
+        }
+
+        .email-sender {
+            width: 180px;
+            font-size: 14px;
+            color: #202124;
+        }
+
+        .email-subject {
+            flex: 1;
+            font-size: 14px;
+            color: #202124;
+            margin-right: 10px;
+        }
+
+        .email-time {
+            color: #5f6368;
+            font-size: 12px;
+            width: 60px;
+            text-align: right;
+        }
+
+        .Nintento-email {
+            background: #fff3cd !important;
+            border-left: 4px solid #e60012;
+        }
+
+        /* メール詳細画面 */
+        .email-detail-screen {
+            background: white;
+            padding: 20px;
+        }
+
+        .email-header-detail {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .email-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 15px;
+        }
+
+        .email-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .Nintento-sender {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .Nintento-icon {
+            width: 32px;
+            height: 32px;
+            background: #e60012;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .email-content {
+            line-height: 1.6;
+            color: #202124;
+            font-size: 14px;
+        }
+
+        .lottery-result {
+            background: linear-gradient(135deg, #4caf50, #8bc34a);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .lottery-result.lost {
+            background: linear-gradient(135deg, #f44336, #ef5350);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .result-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .schedule-item {
+            margin: 10px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .back-button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: #3367d6;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background: #3367d6;
+            transform: scale(1.05);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* カスタムポップアップ */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none; /* 最初は非表示 */
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .popup-overlay.show {
+            opacity: 1;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transform: scale(0.5) rotate(-5deg);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative; /* sparkle を内部に配置するため */
+        }
+
+        .popup-overlay.show .popup-content {
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* 紙吹雪アニメーション */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(var(--drift, 0px)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 祝福メッセージのスタイル：アニメーションを削除 */
+        .celebration-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b35;
+            margin-bottom: 15px;
+        }
+
+        /* きらきらエフェクト */
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        .popup-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .popup-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .popup-button.confirm {
+            background: #1da1f2;
+            color: white;
+        }
+        .popup-button.cancel {
+            background: #ccc;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .product-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .gmail-container {
+                flex-direction: column;
+            }
+
+            .gmail-sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- ========================================== -->
-  <!-- １）申し込み画面 (Application Screen)      -->
-  <!-- ========================================== -->
-  <div id="application-screen" class="screen">
-    <header class="header">
-      <h1>応募フォーム</h1>
-    </header>
-    <div class="form-container">
-      <label for="input-name" class="label">お名前を入力してください：</label>
-      <input type="text" id="input-name" class="input-text" placeholder="例：山田 太郎" />
-      <button id="apply-button" class="btn">申し込む</button>
-    </div>
-  </div>
+    <!-- 画面1: 応募画面 -->
+    <div id="application" class="screen active">
+        <div class="application-screen">
+            <h1 style="font-size: 2.5em; margin-bottom: 20px;">Nintento Switch 2</h1>
+            <p style="font-size: 1.2em; margin-bottom: 20px;">（日本語・国内専用）</p>
 
-  <div id="loading-screen" class="hidden">メールを受信中…</div>
-  <ul id="inbox-list"></ul>
-
-  <!-- ========================================== -->
-  <!-- ２）受信トレイ画面 (Inbox Screen)         -->
-  <!-- ========================================== -->
-  <div id="inbox-screen" class="screen hidden">
-    <header class="header">
-      <h1>メール</h1>
-    </header>
-    <ul class="email-list">
-      <li class="email-item" id="open-winning-mail">
-        <img class="sender-icon" src="nintendo_logo.png" alt="Nintendo アイコン" />
-        <div class="email-summary">
-          <p class="sender-name">Nintendo</p>
-          <p class="email-subject">【当選通知】Nintendo Switch 2 マリオカートセット</p>
+            <!-- お名前入力欄を追加 -->
+            <div class="input-name">
+                <input type="text" id="applicant-name" placeholder="お名前を入力">
+            </div>
+            
+            <div class="product-container">
+                <div class="product-card">
+                    <div class="product-image">
+                        <div class="switch-console">
+                            <div class="joy-con-left"></div>
+                            <div class="switch-screen"></div>
+                            <div class="joy-con-right"></div>
+                        </div>
+                    </div>
+                    <div class="product-title">Nintento Switch 2</div>
+                    <div class="product-subtitle">（日本語・国内専用）</div>
+                    <div class="product-price">49,980円 税込</div>
+                    <div style="font-size: 12px; margin-bottom: 20px;">2025年6月5日発売</div>
+                    <button class="apply-button" onclick="applyLottery('standard')">
+                        第<span id="standard-round">1</span>回抽選受付中 応募する
+                    </button>
+                    <button class="reapply-button" onclick="reapplyLottery('standard')" style="display: none;">
+                        再応募する
+                    </button>
+                </div>
+            </div>
+            
+            <p style="font-size: 12px; margin-top: 40px; opacity: 0.8;">
+                応募には条件があります。応募条件と抽選スケジュールはこちらをご確認ください。
+            </p>
         </div>
-        <p class="received-date">5月23日</p>
-      </li>
-      <!-- ※必要に応じて他のメールを追加してもよい -->
-    </ul>
-  </div>
-
-  <!-- ========================================== -->
-  <!-- ３）メール本文画面 (Mail View Screen)     -->
-  <!-- ========================================== -->
-  <div id="mail-screen" class="screen hidden">
-    <header class="header">
-      <button id="back-button" class="back-button">←</button>
-      <h1>メール詳細</h1>
-    </header>
-    <div class="mail-content">
-      <!-- 差出人情報 -->
-      <div class="mail-header-info">
-        <img class="sender-icon-large" src="nintendo_logo.png" alt="Nintendo アイコン" />
-        <div class="header-text">
-          <p class="sender-name-large">Nintendo <span class="verified-badge">✔︎</span></p>
-          <p class="to-yourself">To: 自分</p>
-          <p class="sent-date">5月23日</p>
-        </div>
-      </div>
-
-      <!-- 本文 -->
-      <div class="mail-body">
-        <!-- ここに JavaScript から名前を差し込みます -->
-        <p id="recipient-name">○○○○ 様</p>
-        <p>
-          このたびはマイニンテンドーストアより「Nintendo Switch 2（日本語・国内専用）マリオカート ワールド セット」抽選販売にご応募いただきありがとうございました。
-        </p>
-        <p>
-          5月20日ご連絡のメールでご案内しましたとおり、厳正なる抽選の結果、<span id="recipient-name-duplicate">○○○○ 様</span>が当選いたしました。
-        </p>
-        <p>
-          下記の内容をご確認のうえ、ご購入のお手続きをよろしくお願いいたします。<br />
-          ※本メールと入れ違いで、すでにご購入済みの場合はご容赦ください。
-        </p>
-        <hr />
-        <p>
-          ■当選された商品<br />
-          Nintendo Switch 2（日本語・国内専用） マリオカート ワールド セット
-        </p>
-        <hr />
-      </div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <!-- 画面2: Gmail風メールボックス -->
+    <div id="mailbox" class="screen">
+        <div class="gmail-screen">
+            <div class="gmail-header">
+                <div class="gmail-logo">📧 Mail</div>
+                <div class="search-bar">
+                    <input type="text" class="search-input" placeholder="メールを検索">
+                </div>
+            </div>
+            
+            <div class="gmail-container">
+                <div class="gmail-sidebar">
+                    <div class="sidebar-item active">
+                        📥 受信トレイ <span id="inbox-count">5</span>
+                    </div>
+                    <div class="sidebar-item">⭐ スター付き</div>
+                    <div class="sidebar-item">⏰ スヌーズ中</div>
+                    <div class="sidebar-item">📤 送信済み</div>
+                    <div class="sidebar-item">📝 下書き <span style="margin-left: auto;">2</span></div>
+                    <div class="sidebar-item">📬 すべてのメール</div>
+                    <div class="sidebar-item">🗑️ ゴミ箱</div>
+                </div>
+                
+                <div class="gmail-content">
+                    <div class="email-list" id="email-list">
+                        <!-- JavaScriptで動的に追加 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 画面3: メール詳細 -->
+    <div id="email-detail" class="screen">
+        <div class="email-detail-screen">
+            <button class="back-button" onclick="showScreen('mailbox')">← 戻る</button>
+            
+            <div class="email-header-detail">
+                <div class="email-title" id="email-detail-title"></div>
+                
+                <div class="email-meta">
+                    <div class="Nintento-sender">
+                        <div class="Nintento-icon">N</div>
+                        <div>
+                            <div style="font-weight: 500;">Nintento</div>
+                            <div style="font-size: 12px; color: #5f6368;">&lt;Nintento-noreply@ccg.Nintento.com&gt;</div>
+                        </div>
+                    </div>
+                    <div style="margin-left: auto; color: #5f6368; font-size: 12px;" id="email-detail-time"></div>
+                </div>
+            </div>
+            
+            <div class="email-content" id="email-detail-content"></div>
+        </div>
+    </div>
+
+    <!-- カスタムポップアップ -->
+    <div class="popup-overlay" id="popup">
+        <div class="popup-content">
+            <div id="popup-message"></div>
+            <div class="popup-buttons">
+                <button class="popup-button confirm" id="popup-confirm">ツイートする</button>
+                <button class="popup-button cancel" id="popup-cancel">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification">
+        <div id="notification-text"></div>
+    </div>
+
+    <!-- ナビゲーション -->
+    <div class="navigation">
+        <button class="nav-button" onclick="showScreen('application')">応募画面</button>
+        <button class="nav-button" onclick="showScreen('mailbox')">メールボックス</button>
+        <a class="nav-button" href="https://www.youtube.com/" target="_blank">YouTube</a>
+        <a class="nav-button" href="https://twitter.com/" target="_blank">Twitter</a>
+    </div>
+
+    <script>
+        // グローバル変数
+        let lotteryRounds = { standard: 1 };
+        let applicantName = '';
+        let emails = [];
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function applyLottery(type) {
+            const nameInput = document.getElementById('applicant-name').value.trim();
+            if (!nameInput) {
+                alert('お名前を入力してください。');
+                return;
+            }
+            applicantName = nameInput;
+
+            const productName = 'Nintento Switch 2（日本語・国内専用）';
+            const round = lotteryRounds[type];
+
+            showNotification(`第${round}回 ${productName}に応募しました！`);
+
+            const buttons = document.querySelectorAll(`.product-card button`);
+            buttons.forEach(button => {
+                if (button.onclick && button.onclick.toString().includes(type)) {
+                    if (button.classList.contains('apply-button')) {
+                        button.style.display = 'none';
+                    } else if (button.classList.contains('reapply-button')) {
+                        button.style.display = 'inline-block';
+                    }
+                }
+            });
+
+            setTimeout(() => {
+                showScreen('mailbox');
+            }, 2000);
+
+            const delay = Math.floor(Math.random() * 4000) + 1000;
+            setTimeout(() => {
+                sendLotteryEmail(type, round);
+            }, delay);
+        }
+
+        function reapplyLottery(type) {
+            lotteryRounds[type]++;
+            document.getElementById(`${type}-round`).textContent = lotteryRounds[type];
+            applyLottery(type);
+            setTimeout(() => {
+                showScreen('mailbox');
+            }, 1000);
+        }
+
+        function sendLotteryEmail(type, round) {
+            const productName = 'Nintento Switch 2（日本語・国内専用）';
+            const isWinner = Math.random() < 0.118;
+            const now = new Date();
+            const timeString = `${now.getMonth() + 1}月${now.getDate()}日`;
+            const subject = `${applicantName} 様【${productName}】第${round}回抽選結果のお知らせ`;
+
+            const email = {
+                id: emails.length,
+                sender: 'Nintento',
+                subject: subject,
+                time: timeString,
+                content: generateEmailContent(productName, round, isWinner),
+                isWinner: isWinner,
+                round: round
+            };
+
+            emails.unshift(email);
+            updateEmailList();
+        }
+
+        function generateEmailContent(productName, round, isWinner) {
+            if (isWinner) {
+                return `
+                    <p>${applicantName} 様</p>
+                    <br>
+                    <p>このたびはマイニンテントーストアの「${productName}」第${round}回抽選販売にご応募いただきありがとうございます。</p>
+                    <br>
+                    <p>厳正なる抽選の結果、${applicantName} 様は【当選】となりました。</p>
+
+                    <div style="margin: 30px 0;">
+                        ==================<br>
+                        ■当選の結果、ご購入が可能な商品<br>
+                        Nitendo Switch 2（日本語・国内専用）<br>
+                        ==================
+                    </div>
+                    <p>制作動画はこちら: <a href="https://kohayash4ga.github.io/switch2-fake/" target="_blank">https://kohayash4ga.github.io/switch2-fake/</a></p><br>
+                    <p>〓〓〓〓〓〓〓〓〓〓〓<br>
+                    ▽お問い合わせ先（オンラインお問い合わせ窓口）<br>
+                    https://x.com/okihara_touhi<br>
+                    ※このメールアドレスには返信できません。<br>
+                    ※このメールはお遊びです。<br>
+                    〓〓〓〓〓〓〓〓〓〓〓<br>
+                    配信元：Nintento株式会社</p>
+                `;
+            } else {
+                const nextRound = round + 1;
+                return `
+                    <p>${applicantName} 様</p>
+                    <br>
+                    <p>このたびはマイニンテンドーストアの「${productName}」抽選販売にご応募いただきありがとうございます。</p>
+                    <br>
+                    <p>厳正なる抽選の結果、誠に残念ながら【落選】となりました。</p>
+                    <br>
+                    <p><strong>【お申し込み内容】</strong><br>
+                    ==================<br>
+                    2025年6月5日発売<br>
+                    ${productName}<br>
+                    第${round}回抽選販売<br>
+                    ==================</p>
+                    <br>
+                    <p>━━━━━━━━━<br>
+                    ■第${nextRound}回抽選販売について<br>
+                    ━━━━━━━━━</p>
+                    <br>
+                    <p>＝＝＝＝＝＝＝<br>
+                    ●応募受付期間<br>
+                    6月3日（火）12時15分（正午過ぎ）～6月11日（水）午前11時まで<br>
+                    <br>
+                    ●抽選結果発表日<br>
+                    再応募ボタンを押してから２秒程度
+                    <br>
+                    ●商品のお届け予定日<br>
+                    7月4日（金）まで<br>
+                    ＝＝＝＝＝＝＝</p>
+                    <br>
+                    <p>第${round}回抽選販売に落選された方は、第${nextRound}回抽選販売に自動的に応募内容を引き継がせていただきます。第${round}回抽選販売で応募した本体の種類を変更しない場合は、第${nextRound}回抽選販売について、改めてお手続きしていただく必要はありません。</p>
+                    <br>
+                    <p>なお、第${nextRound}回抽選販売への自動応募引き継ぎに伴って、お支払いは発生しません。</p>
+                    <br>
+                    <p>自動応募をキャンセルしたい場合や、応募する本体の種類を変更する場合のお手続きに関する最新の情報は、こちらをご確認ください。↓<br>
+                    https://store-jp.Nintento.com/switch2#automatic-extension</p>
+                    <br>
+                    <p>また、全国のゲーム取扱店やオンラインショップでの「Nintento Switch 2」の販売については、各販売店の案内をご確認ください。</p>
+                    <br>
+                    <p>〓〓〓〓〓〓〓〓〓〓〓<br>
+                    ▽お問い合わせ先（オンラインお問い合わせ窓口）<br>
+                    https://x.com/okihara_touhi<br>
+                    ※このメールアドレスには返信できません。<br>
+                    ※このメールはお遊びです。<br>
+                    〓〓〓〓〓〓〓〓〓〓〓<br>
+                    配信元：Nintento株式会社</p>
+                `;
+            }
+        }
+
+        function updateEmailList() {
+            const emailList = document.getElementById('email-list');
+            const NintentoEmails = emails.map((email, index) => `
+                <div class="email-item Nintento-email unread" onclick="showEmailDetail(${index})">
+                    <div class="email-sender">Nintento</div>
+                    <div class="email-subject">${email.subject}</div>
+                    <div class="email-time">${email.time}</div>
+                </div>
+            `).join('');
+
+            const otherEmails = `
+            <div class="email-item">
+                <div class="email-sender">SMBL日興証券</div>
+                <div class="email-subject">SMがたくさん！BL証券を買うなら今！</div>
+                <div class="email-time">20:52</div>
+            </div>
+            <div class="email-item">
+                <div class="email-sender">Amajon.co.jp</div>
+                <div class="email-subject">Amajon.co.jpの2商品のご注文番号R0603-I89-P3</div>
+                <div class="email-time">18:23</div>
+            </div>
+            <div class="email-item">
+                <div class="email-sender">UmyaEats</div>
+                <div class="email-subject">今晩、UmyaEatsにしない？</div>
+                <div class="email-time">18:32</div>
+            </div>
+            <div class="email-item">
+                <div class="email-sender">HRキャリアパートナーズ株式会社</div>
+                <div class="email-subject">あなたのご経験にマッチする非公開求人のご案内</div>
+                <div class="email-time">16:56</div>
+            </div>
+            <div class="email-item">
+                <div class="email-sender">本Money Forward</div>
+                <div class="email-subject">【本Money Forward】出金のお知らせ</div>
+                <div class="email-time">15:18</div>
+            </div>
+            `;
+
+            emailList.innerHTML = NintentoEmails + otherEmails;
+            document.getElementById('inbox-count').textContent = 5 + emails.length;
+        }
+
+        function showEmailDetail(emailIndex) {
+            const email = emails[emailIndex];
+            if (!email) return;
+            const items = document.querySelectorAll('.Nintento-email');
+            if (items[emailIndex]) {
+                items[emailIndex].classList.remove('unread');
+            }
+            document.getElementById('email-detail-title').textContent = email.subject;
+            document.getElementById('email-detail-time').textContent = `${email.time} （${email.round}回目）`;
+            document.getElementById('email-detail-content').innerHTML = email.content;
+            showScreen('email-detail');
+
+            if (email.isWinner) {
+                setTimeout(() => {
+                    const n = email.round;
+                    const p = 0.118;
+                    const prob = (Math.pow(1 - p, n - 1) * p) * 100;
+                    const probText = prob.toFixed(2);
+
+                    createConfetti();
+                    createSparkles();
+
+                    const popup = document.getElementById('popup');
+                    const msgBox = document.getElementById('popup-message');
+                    msgBox.innerHTML = `<div class="celebration-message">Thank you for Playing!</div>第${n}回抽選での当選確率は ${probText}% です。`;
+
+                    popup.style.display = 'flex';
+                    setTimeout(() => {
+                        popup.classList.add('show');
+                    }, 50);
+
+                    document.getElementById('popup-confirm').onclick = () => {
+                        const tweetText = encodeURIComponent(
+                            `Nintento Switch 2が第${n}回抽選で当選しました！\n` +
+                            `${n}回目で当たる確率は ${probText}% でした。\n` +
+                            `遊んでみる：https://kohayash4ga.github.io/switch2-fake/\n` +
+                            `#NintendoSwitch2当選シュミレーター #NintendoSwitch2`
+                        );
+                        const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+                        window.open(tweetUrl, '_blank');
+                        hidePopup();
+                    };
+
+                    document.getElementById('popup-cancel').onclick = () => {
+                        hidePopup();
+                    };
+                }, 4000);
+            }
+        }
+
+        function hidePopup() {
+            const popup = document.getElementById('popup');
+            popup.classList.remove('show');
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 300);
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                const startX = Math.random() * window.innerWidth;
+                const drift = (Math.random() * 200 - 100);
+                confetti.style.left = `${startX}px`;
+                confetti.style.setProperty('--drift', `${drift}px`);
+                const hue = Math.floor(Math.random() * 360);
+                confetti.style.background = `hsl(${hue}, 100%, 50%)`;
+                confetti.style.animation = `confetti-fall ${3 + Math.random() * 2}s linear forwards`;
+                document.body.appendChild(confetti);
+                confetti.addEventListener('animationend', () => confetti.remove());
+            }
+        }
+
+        function createSparkles() {
+            const popupContent = document.querySelector('.popup-content');
+            const width = popupContent.offsetWidth;
+            const height = popupContent.offsetHeight;
+            for (let i = 0; i < 30; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.style.left = Math.random() * width + 'px';
+                sparkle.style.top = Math.random() * height + 'px';
+                popupContent.appendChild(sparkle);
+                sparkle.addEventListener('animationend', () => sparkle.remove());
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            showScreen('application');
+            updateEmailList();
+        });
+    </script>
 </body>
 </html>
